@@ -1,0 +1,14 @@
+package com.example.parcel_service.dto;
+
+
+import com.example.parcel_service.entity.ParcelSize;
+import com.example.parcel_service.entity.ParcelStatus;
+import lombok.Data;
+
+@Data
+public class ParcelRequest {
+    private Long lockerId;
+    private String recipientName;
+    private String recipientAddress;
+    private ParcelSize size;
+}

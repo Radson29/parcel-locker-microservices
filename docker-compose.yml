@@ -1,0 +1,190 @@
+services:
+
+  # Eureka Server
+  eureka-server:
+    build:
+      context: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - backend
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"       # Port RabbitMQ
+      - "15672:15672"     # UI Management
+    networks:
+      - backend
+
+  # PostgreSQL dla user-service
+  postgres-user-service:
+    image: postgres:15
+    container_name: postgres-user-service
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  # User Service
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    depends_on:
+      - postgres-user-service
+      - eureka-server
+      - rabbitmq
+    ports:
+      - "8081:8081"
+    networks:
+      - backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-user-service:5432/userdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  # PostgreSQL dla courier-service
+  postgres-courier-service:
+    image: postgres:15
+    container_name: postgres-courier-service
+    environment:
+      POSTGRES_DB: courierdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    networks:
+      - backend
+
+  # Courier Service
+  courier-service:
+    build:
+      context: ./courier-service
+    container_name: courier-service
+    depends_on:
+      - postgres-courier-service
+      - eureka-server
+      - rabbitmq
+    ports:
+      - "8082:8082"
+    networks:
+      - backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-courier-service:5432/courierdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  # PostgreSQL dla delivery-service
+  postgres-delivery-service:
+    image: postgres:15
+    container_name: postgres-delivery-service
+    environment:
+      POSTGRES_DB: deliverydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    networks:
+      - backend
+
+  # Delivery Service
+  delivery-service:
+    build:
+      context: ./delivery-service
+    container_name: delivery-service
+    depends_on:
+      - postgres-delivery-service
+      - eureka-server
+      - rabbitmq
+    ports:
+      - "8083:8083"
+    networks:
+      - backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-delivery-service:5432/deliverydb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  # PostgreSQL dla parcel-service
+  postgres-parcel-service:
+    image: postgres:15
+    container_name: postgres-parcel-service
+    environment:
+      POSTGRES_DB: parceldb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5436:5432"
+    networks:
+      - backend
+
+  # Parcel Service
+  parcel-service:
+    build:
+      context: ./parcel-service
+    container_name: parcel-service
+    depends_on:
+      - postgres-parcel-service
+      - eureka-server
+      - rabbitmq
+    ports:
+      - "8084:8084"
+    networks:
+      - backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-parcel-service:5432/parceldb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+  # PostgreSQL dla parcel-locker-service
+  postgres-parcel-locker-service:
+    image: postgres:15
+    container_name: postgres-parcel-locker-service
+    environment:
+      POSTGRES_DB: lockersdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5437:5432"
+    networks:
+      - backend
+
+  # Parcel Locker Service
+  parcel-locker-service:
+    build:
+      context: ./parcel-locker-service
+    container_name: parcel-locker-service
+    depends_on:
+      - postgres-parcel-locker-service
+      - eureka-server
+      - rabbitmq
+    ports:
+      - "8085:8085"
+    networks:
+      - backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-parcel-locker-service:5432/lockersdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      SPRING_RABBITMQ_HOST: rabbitmq
+
+
+networks:
+  backend:
