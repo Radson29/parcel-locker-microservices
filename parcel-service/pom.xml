@@ -117,8 +117,10 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
 		</plugins>
 		<finalName>parcel-service</finalName>
+
 	</build>
 
 </project>

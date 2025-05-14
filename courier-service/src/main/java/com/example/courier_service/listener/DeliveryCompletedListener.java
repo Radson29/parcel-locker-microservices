@@ -20,13 +20,13 @@ public class DeliveryCompletedListener {
     public void handleDeliveryCompleted(String message) {
         try {
             DeliveryCompletedEvent event = objectMapper.readValue(message, DeliveryCompletedEvent.class);
-            log.info("✅ Received DeliveryCompleted event: {}", event);
+            log.info(" Received DeliveryCompleted event: {}", event);
 
             courierService.updateCourierAvailability(event.getCourierId(), true);
-            log.info("🚚 Courier ID {} marked as available", event.getCourierId());
+            log.info(" Courier ID {} marked as available", event.getCourierId());
 
         } catch (Exception e) {
-            log.error("❌ Error processing DeliveryCompleted event", e);
+            log.error(" Error processing DeliveryCompleted event", e);
         }
     }
 }

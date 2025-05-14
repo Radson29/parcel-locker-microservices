@@ -16,49 +16,41 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String DELIVERY_STARTED_QUEUE = "delivery.started";
-    public static final String DELIVERY_COMPLETED_QUEUE = "delivery.completed";
+    public static final String PARCEL_CREATED_QUEUE = "parcel.created";
+    public static final String PARCEL_STATUS_UPDATED_QUEUE = "parcel.status.updated";
     public static final String EXCHANGE = "parcel.exchange";
 
     @Bean
-    public Queue deliveryStartedQueue() {
-        return new Queue(DELIVERY_STARTED_QUEUE, false);
+    public Queue parcelCreatedQueue() {
+        return new Queue(PARCEL_CREATED_QUEUE, false);
     }
 
     @Bean
-    public Queue deliveryCompletedQueue() {
-        return new Queue(DELIVERY_COMPLETED_QUEUE, false);
+    public Queue parcelStatusUpdatedQueue() {
+        return new Queue(PARCEL_STATUS_UPDATED_QUEUE, false);
     }
 
     @Bean
-    public DirectExchange parcelExchange() {
+    public DirectExchange exchange() {
         return new DirectExchange(EXCHANGE);
     }
 
-
     @Bean
-    public Binding deliveryCompletedBinding(Queue deliveryCompletedQueue, DirectExchange parcelExchange) {
-        return BindingBuilder.bind(deliveryCompletedQueue).to(parcelExchange).with(DELIVERY_COMPLETED_QUEUE);
+    public Binding parcelStatusBinding() {
+        return BindingBuilder.bind(parcelStatusUpdatedQueue())
+                .to(exchange())
+                .with(PARCEL_STATUS_UPDATED_QUEUE);
     }
 
     @Bean
-    public Binding deliveryStartedBinding(Queue deliveryStartedQueue, DirectExchange parcelExchange) {
-        return BindingBuilder.bind(deliveryStartedQueue).to(parcelExchange).with(DELIVERY_STARTED_QUEUE);
-    }
-
-    @Bean
-    public Jackson2JsonMessageConverter messageConverter() {
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(messageConverter());
+        template.setMessageConverter(jackson2JsonMessageConverter());
         return template;
-    }
-    @Bean
-    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
-        return new RabbitAdmin(connectionFactory);
     }
 }

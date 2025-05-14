@@ -9,6 +9,7 @@ import com.example.parcel_service.publisher.ParcelEventPublisher;
 import com.example.parcel_service.repository.ParcelRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ParcelService {
 
     private final ParcelRepository parcelRepository;
     private final ParcelEventPublisher eventPublisher;
+
 
     public Parcel createParcel(ParcelRequest request) {
         Parcel parcel = mapToParcel(request);
@@ -54,6 +56,7 @@ public class ParcelService {
     private Parcel mapToParcel(ParcelRequest request) {
         return Parcel.builder()
                 .lockerId(request.getLockerId())
+                .userId(request.getUserId())
                 .recipientName(request.getRecipientName())
                 .recipientAddress(request.getRecipientAddress())
                 .status(ParcelStatus.CREATED)

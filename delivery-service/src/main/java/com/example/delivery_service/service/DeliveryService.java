@@ -3,6 +3,7 @@ package com.example.delivery_service.service;
 import com.example.delivery_service.entity.Delivery;
 import com.example.delivery_service.event.DeliveryCompletedEvent;
 import com.example.delivery_service.event.DeliveryStartedEvent;
+import com.example.delivery_service.event.ParcelStatusUpdatedEvent;
 import com.example.delivery_service.publisher.DeliveryEventPublisher;
 import com.example.delivery_service.repository.DeliveryRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,22 +46,26 @@ public class DeliveryService {
         delivery.setStatus("COMPLETED");
         deliveryRepository.save(delivery);
 
-        // 💡 Świeże pobranie z bazy po zapisaniu
         Delivery freshDelivery = deliveryRepository.findById(delivery.getId())
                 .orElseThrow(() -> new RuntimeException("Delivery not found after update"));
 
-        log.info("✅ Delivery {} updated to status: {}", freshDelivery.getId(), freshDelivery.getStatus());
+        log.info(" Delivery {} updated to status: {}", freshDelivery.getId(), freshDelivery.getStatus());
 
-        DeliveryCompletedEvent event = new DeliveryCompletedEvent(
+        DeliveryCompletedEvent deliveryEvent = new DeliveryCompletedEvent(
                 freshDelivery.getId(),
                 freshDelivery.getCourierId(),
                 freshDelivery.getParcelId(),
                 freshDelivery.getStatus()
         );
+        eventPublisher.publishDeliveryCompletedEvent(deliveryEvent);
 
-        log.info("📦 Publishing DeliveryCompletedEvent: {}", event);
 
-        eventPublisher.publishDeliveryCompletedEvent(event);
+        eventPublisher.publishParcelStatusUpdatedEvent(
+                freshDelivery.getParcelId(),
+                "DELIVERED_TO_LOCKER"
+        );
+        log.info(" Published ParcelStatusUpdatedEvent for parcel {} with status {}",
+                freshDelivery.getParcelId(), "DELIVERED_TO_LOCKER");
 
         return freshDelivery;
     }

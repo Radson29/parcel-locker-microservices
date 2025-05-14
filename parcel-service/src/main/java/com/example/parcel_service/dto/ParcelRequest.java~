@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class ParcelRequest {
     private Long lockerId;
-    private Long userId;
+    
     private String recipientName;
     private String recipientAddress;
     private ParcelSize size;

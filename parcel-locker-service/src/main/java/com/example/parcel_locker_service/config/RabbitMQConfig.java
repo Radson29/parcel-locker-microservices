@@ -15,7 +15,8 @@ public class RabbitMQConfig {
 
     public static final String DELIVERY_COMPLETED_QUEUE = "delivery.completed";
     public static final String PARCEL_CREATED_QUEUE = "parcel.created";
-    public static final String EXCHANGE = "parcel.exchange"; // <-- Dodaj to
+    public static final String EXCHANGE = "parcel.exchange";
+    public static final String PARCEL_STATUS_UPDATED_QUEUE = "parcel.status.updated";
 
     @Bean
     public Queue deliveryCompletedQueue() {
@@ -52,5 +53,17 @@ public class RabbitMQConfig {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(messageConverter());
         return template;
+    }
+
+    @Bean
+    public Queue parcelStatusUpdatedQueue() {
+        return new Queue(PARCEL_STATUS_UPDATED_QUEUE, false);
+    }
+
+    @Bean
+    public Binding parcelStatusUpdatedBinding() {
+        return BindingBuilder.bind(parcelStatusUpdatedQueue())
+                .to(parcelExchange())
+                .with(PARCEL_STATUS_UPDATED_QUEUE);
     }
 }
